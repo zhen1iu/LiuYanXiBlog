@@ -1,30 +1,56 @@
 package main
 
 import (
-	"flag"
-	"fmt"
+	"LiuYanXiBlog/global"
+	"LiuYanXiBlog/internal/routers"
+	"LiuYanXiBlog/pkg/setting"
+	"log"
+	"net/http"
+	"time"
 
-	"github.com/cihub/seelog"
+	"github.com/gin-gonic/gin"
 )
 
+func init() {
+	err := setupSetting()
+	if err != nil {
+		log.Fatalf("init.setupSetting err: %v", err)
+	}
+}
+
 func main() {
-	configFilePath := flag.String("C", "conf/conf.yaml", "config file path")
-	logConfigPath := flag.String("L", "conf/seelog.xml", "log Config file path")
-	flag.Parse()
-
-	logger, err := seelog.LoggerFromConfigAsFile(*logConfigPath)
-	if err != nil {
-		seelog.Critical("--err parsing seelog config file", err)
-		return
+	gin.SetMode(global.ServerSetting.RunMode)
+	router := routers.NewRouter()
+	s := &http.Server{
+		Addr:           ":" + global.ServerSetting.HttpPort,
+		Handler:        router,
+		ReadTimeout:    global.ServerSetting.ReadTimeout,
+		WriteTimeout:   global.ServerSetting.WriteTimeout,
+		MaxHeaderBytes: 1 << 20,
 	}
 
-	seelog.ReplaceLogger(logger)
+	s.ListenAndServe()
+}
+
+func setupSetting() error {
+	setting, err := setting.NewSetting()
 	if err != nil {
-		seelog.Critical("--ReplaceLogger", err)
-		return
+		return err
 	}
-	defer seelog.Flush()
+	err = setting.ReadSection("Server", &global.ServerSetting)
+	if err != nil {
+		return err
+	}
+	err = setting.ReadSection("App", &global.APPSetting)
+	if err != nil {
+		return err
+	}
+	err = setting.ReadSection("Database", &global.DatabaseSetting)
+	if err != nil {
+		return err
+	}
 
-	fmt.Println(configFilePath)
-
+	global.ServerSetting.ReadTimeout *= time.Second
+	global.ServerSetting.WriteTimeout *= time.Second
+	return nil
 }
