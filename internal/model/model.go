@@ -3,6 +3,7 @@ package model
 import (
 	"LiuYanXiBlog/global"
 	"LiuYanXiBlog/pkg/setting"
+	"fmt"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -29,8 +30,8 @@ func (t Tag) TableName() string {
 }
 
 func NewDBEngine(databaseSetting *setting.DatabaseSettingS) (*gorm.DB, error) {
-	s := "%s:%s@tcp(%s)/%s?charset=%s&parseTime=%t&loc=Local"
-	db, err := gorm.Open(mysql.New(mysql.Config{
+
+	/*db, err := gorm.Open(mysql.New(mysql.Config{
 		DSN:                       "gorm:gorm@tcp(127.0.0.1:3306)/gorm?charset=utf8&parseTime=True&loc=Local", // DSN data source name
 		DefaultStringSize:         256,                                                                        // string 类型字段的默认长度
 		DisableDatetimePrecision:  true,                                                                       // 禁用 datetime 精度，MySQL 5.6 之前的数据库不支持
@@ -38,6 +39,10 @@ func NewDBEngine(databaseSetting *setting.DatabaseSettingS) (*gorm.DB, error) {
 		DontSupportRenameColumn:   true,                                                                       // 用 `change` 重命名列，MySQL 8 之前的数据库和 MariaDB 不支持重命名列
 		SkipInitializeWithVersion: false,                                                                      // 根据当前 MySQL 版本自动配置
 	}), &gorm.Config{})
+	*/
+	dsn := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=%s&parseTime=%t&loc=Local", databaseSetting.UserName, databaseSetting.Password, databaseSetting.Host,
+		databaseSetting.DBName, databaseSetting.Charset, databaseSetting.ParseTime)
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		return nil, err
 	}
