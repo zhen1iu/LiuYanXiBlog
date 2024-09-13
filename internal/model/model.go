@@ -4,9 +4,15 @@ import (
 	"LiuYanXiBlog/global"
 	"LiuYanXiBlog/pkg/setting"
 	"fmt"
+	"log"
+	"os"
+	"time"
 
+	//"github.com/go-sql-driver/mysql"
+	//"gorm.io/driver/mysql"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 type Model struct {
@@ -30,29 +36,51 @@ func (t Tag) TableName() string {
 }
 
 func NewDBEngine(databaseSetting *setting.DatabaseSettingS) (*gorm.DB, error) {
+	// 构建数据库连接字符串
+	s := "%s:%s@tcp(%s)/%s?charset=%s&parseTime=%t&loc=Local"
+	dsn := fmt.Sprintf(s,
+		databaseSetting.UserName,
+		databaseSetting.Password,
+		databaseSetting.Host,
+		databaseSetting.DBName,
+		databaseSetting.Charset,
+		databaseSetting.ParseTime,
+	)
 
-	/*db, err := gorm.Open(mysql.New(mysql.Config{
-		DSN:                       "gorm:gorm@tcp(127.0.0.1:3306)/gorm?charset=utf8&parseTime=True&loc=Local", // DSN data source name
-		DefaultStringSize:         256,                                                                        // string 类型字段的默认长度
-		DisableDatetimePrecision:  true,                                                                       // 禁用 datetime 精度，MySQL 5.6 之前的数据库不支持
-		DontSupportRenameIndex:    true,                                                                       // 重命名索引时采用删除并新建的方式，MySQL 5.7 之前的数据库和 MariaDB 不支持重命名索引
-		DontSupportRenameColumn:   true,                                                                       // 用 `change` 重命名列，MySQL 8 之前的数据库和 MariaDB 不支持重命名列
-		SkipInitializeWithVersion: false,                                                                      // 根据当前 MySQL 版本自动配置
-	}), &gorm.Config{})
-	*/
-	dsn := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=%s&parseTime=%t&loc=Local", databaseSetting.UserName, databaseSetting.Password, databaseSetting.Host,
-		databaseSetting.DBName, databaseSetting.Charset, databaseSetting.ParseTime)
+	// 打开数据库连接
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		return nil, err
 	}
 
+	// 设置日志级别
 	if global.ServerSetting.RunMode == "debug" {
-		db.LogMode(true)
+		newLogger := logger.New(
+			log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
+			logger.Config{
+				SlowThreshold:             time.Second, // 慢 SQL 阈值
+				LogLevel:                  logger.Info, // 日志级别
+				IgnoreRecordNotFoundError: true,        // 忽略记录未找到错误
+				Colorful:                  true,        // 彩色打印
+			},
+		)
+		db = db.Set("gorm:logger", newLogger)
 	}
-	db.SingularTable(true)
-	db.DB().SetMaxIdleConns(databaseSetting.MaxIdleConns)
-	db.DB().SetMaxOpenConns(databaseSetting.MaxOpenConns)
+
+	// 设置全局表名策略为单数形式
+	db = db.Set("gorm:naming_strategy", struct {
+		SingularTable bool
+	}{SingularTable: true})
+
+	// 设置数据库连接池参数
+	sqlDB, err := db.DB()
+	if err != nil {
+		return nil, err
+	}
+
+	sqlDB.SetMaxIdleConns(databaseSetting.MaxIdleconns)
+	sqlDB.SetMaxOpenConns(databaseSetting.MaxOpenConns)
+	sqlDB.SetConnMaxLifetime(time.Duration(databaseSetting.ConnMaxLifetimeHours) * time.Hour)
 
 	return db, nil
 }
