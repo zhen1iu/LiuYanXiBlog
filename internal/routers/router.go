@@ -22,7 +22,7 @@ func NewRouter() *gin.Engine {
 		apiv1.DELETE("articles/:id", v1.NewArticles().Delete)
 		apiv1.PUT("articles/:id", v1.NewArticles().Update)
 		apiv1.PATCH("articles/:id/state", v1.NewArticles().Update)
-		apiv1.GET("articles/get", v1.NewArticles().List)
+		apiv1.GET("articles", v1.NewArticles().List)
 	}
 	return r
 }
