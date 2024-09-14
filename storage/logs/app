@@ -1,1 +1,3 @@
 2024/09/13 18:52:36 {"callers":["C:/Users/thundersoft/Desktop/TestStudy/Go/LiuYanXiBlog/main.go:23  main.init.0"],"level":"INFO","message":"eddycjy: go-programming-tour-book/blog-service","time":1726224756323105000}
+2024/09/14 14:25:10 {"callers":["C:/Users/thundersoft/Desktop/TestStudy/Go/LiuYanXiBlog/main.go:28  main.init.0"],"level":"INFO","message":"eddycjy: go-programming-tour-book/blog-service","time":1726295110642464100}
+2024/09/14 14:50:22 {"callers":["C:/Users/thundersoft/Desktop/TestStudy/Go/LiuYanXiBlog/main.go:28  main.init.0"],"level":"INFO","message":"eddycjy: go-programming-tour-book/blog-service","time":1726296622711406600}
