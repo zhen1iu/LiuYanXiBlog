@@ -2,7 +2,9 @@ package app
 
 import (
 	"LiuYanXiBlog/pkg/errcode"
+	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -40,7 +42,8 @@ func (r *Response) ToresponseList(list interface{}, totalRows int) {
 	})
 }
 
-func (r *Response) ToErrorResponse(err *errcode.Error) {
+func (r *Response) ToErrorResponse(err *errcode.Error, c *gin.Context) {
+
 	response := gin.H{
 		"code": err.Code(),
 		"msg":  err.Msg(),
@@ -48,8 +51,11 @@ func (r *Response) ToErrorResponse(err *errcode.Error) {
 
 	datails := err.Details()
 	if len(datails) > 0 {
-		response["details"] = datails
+		response["details"] = strings.Join(datails, ", ")
 	}
-
-	r.Ctx.JSON(err.Code(), response)
+	fmt.Println("--------------------------")
+	fmt.Println(err.Code(), response)
+	c.JSON(err.Code(), map[string]string{"message": "Bad Request"})
+	//c.Ctx.JSON(err.Code(), map[string]string{"message": "Bad Request"})
+	fmt.Println("00000000000000000")
 }

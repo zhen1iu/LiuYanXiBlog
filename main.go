@@ -36,6 +36,7 @@ func init() {
 // @description Go 记录刘言溪的生活博客
 // @termsOfService https://github.com/zhen1iu/LiuYanXiBlog
 func main() {
+
 	gin.SetMode(global.ServerSetting.RunMode)
 	router := routers.NewRouter()
 

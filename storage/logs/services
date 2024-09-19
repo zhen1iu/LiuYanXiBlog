@@ -1,0 +1,4 @@
+2024/09/18 17:19:54 {"callers":["C:/Users/thundersoft/Desktop/TestStudy/Go/LiuYanXiBlog/main.go:28  main.init.0"],"level":"ERROR","message":"app.BindAndValid errs: %v","time":1726651194263461100}
+2024/09/19 10:39:33 {"callers":["C:/Users/thundersoft/Desktop/TestStudy/Go/LiuYanXiBlog/main.go:28  main.init.0"],"level":"ERROR","message":"app.BindAndValid errs: %v","time":1726713573111183800}
+2024/09/19 10:54:53 {"callers":["C:/Users/thundersoft/Desktop/TestStudy/Go/LiuYanXiBlog/main.go:28  main.init.0"],"level":"ERROR","message":"app.BindAndValid errs: %v","time":1726714493920172400}
+2024/09/19 11:05:34 {"callers":["C:/Users/thundersoft/Desktop/TestStudy/Go/LiuYanXiBlog/main.go:28  main.init.0"],"level":"ERROR","message":"app.BindAndValid errs: %v","time":1726715134363629300}
